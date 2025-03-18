@@ -40,6 +40,47 @@ const echoCommand = metamagic(
 );
 ```
 
+## Options Object 📝
+
+### Attributes Configuration
+
+```javascript
+{
+  // Attribute validation specifications
+  attributes: {
+    [attributeName: string]: 
+      | true                    // Simple required attribute
+      | false                   // Optional attribute
+      | string                  // Description of attribute
+      | {
+          description?: string,     // Human-readable explanation
+          optional?: boolean,       // Default is false (required)
+          validate?: (value) => boolean  // Custom validation function
+        }
+  },
+
+  // Body configuration
+  body?: 
+    | true                      // Required body
+    | false                     // Optional body
+    | string                    // Body description
+    | {
+        optional?: boolean,     // Default is false (required)
+        description?: string,   // Explanation of body purpose
+        validate?: (body) => boolean  // Custom body validation
+      },
+
+  // Command documentation
+  description?: string,         // What the command does
+
+  // Optional usage example
+  example?: {
+    attributes?: object,        // Example attribute values
+    body?: any                  // Optional example body
+  }
+}
+```
+
 ## Command Object Interface 🖥️
 
 The `metamagic()` function returns an object with the following structure:
