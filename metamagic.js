@@ -3,15 +3,15 @@ import createValidator from './validator.js';
 import createExample from './exemplifier.js';
 
 export default function metamagic(name, execute, opts = {}) {
-  const processedOptions = processOptions(name, opts);
+  const processed = processOptions(name, opts);
 
   return {
     name,
-    description: processedOptions.description,
-    example: createExample(opts.example, name),
+    description: processed.description,
+    example: createExample(name, opts, processed),
     validate: createValidator(
-      processedOptions.attributes, 
-      processedOptions.body
+      processed.attributes, 
+      processed.body
     ),
     execute
   };
