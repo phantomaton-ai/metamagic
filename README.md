@@ -2,103 +2,96 @@
 
 A lightweight, flexible command definition and validation library for JavaScript.
 
-[... previous content remains the same ...]
+## Overview 🌟
 
-## Gallows Compatibility 🤝
+Metamagic simplifies creating self-documenting, robust commands with built-in validation and example generation.
 
-Metamagic provides full compatibility with Gallows command execution patterns while offering additional features:
+## Installation 📦
+
+```bash
+npm install metamagic
+```
+
+## Usage 🛠️
+
+### Basic Command Creation
 
 ```javascript
 import metamagic from 'metamagic';
 
-// Gallows-compatible command definition
-const echoCommand = metamagic('echo', 
-  (attributes, body) => body, 
-  {
-    // Maintains Gallows-style example for backward compatibility
-    example: {
-      attributes: {},
-      body: 'Hello, World!'
-    },
-    // Additional Metamagic-specific multiple examples
-    examples: [
-      {
-        description: 'Simple echo',
-        attributes: {},
-        body: 'Hello, Metamagic!'
-      },
-      {
-        description: 'Echo with prefix',
-        attributes: { prefix: 'Message: ' },
-        body: 'Hello, World!'
-      }
-    ]
-  }
-);
+// Simplest command: no attributes, no body
+const greetCommand = metamagic('greet', () => 'Hello, world!');
 
-// Execution remains compatible with Gallows
-const result = echoCommand.execute(
-  'echo',   // action name
-  {},       // attributes
-  'Hello, World!'  // body
+// Command with attributes and body
+const echoCommand = metamagic(
+  'echo', 
+  (attrs, body) => `${attrs.prefix || ''}${body}`,
+  {
+    attributes: {
+      prefix: {
+        description: 'Optional text to prepend to the message',
+        optional: true
+      }
+    },
+    body: {
+      description: 'The message to echo'
+    }
+  }
 );
 ```
 
 ## Output Interface 🖥️
 
-Metamagic commands provide a rich output interface:
+Each Metamagic command returns a standardized result object compatible with command execution frameworks:
 
 ```javascript
-const command = metamagic('myCommand', 
+{
+  // Core result of the command execution
+  result: any,
+  
+  // Command metadata (optional)
+  metadata: {
+    // Execution context
+    name: string,           // Command name
+    executedAt: Date,       // Execution timestamp
+    
+    // Input tracking
+    input: {
+      attributes: object,   // Attributes passed to the command
+      body: any             // Body passed to the command
+    },
+    
+    // Validation details
+    validation: {
+      attributesValidated: boolean,
+      bodyValidated: boolean
+    }
+  }
+}
+```
+
+### Example of Detailed Output
+
+```javascript
+const processCommand = metamagic('process', 
   (attrs, body) => {
-    // Returns a command result object
+    // Complex processing logic
     return {
-      // Execution result
-      result: 'Processed successfully',
-      
-      // Optional metadata about the execution
+      result: processData(body),
       metadata: {
-        // Timestamps
+        name: 'process',
         executedAt: new Date(),
-        
-        // Input tracking
         input: {
           attributes: attrs,
           body: body
         },
-        
-        // Optional validation details
         validation: {
           attributesValidated: true,
           bodyValidated: true
-        }
-      }
-    };
-  }
-);
-```
-
-### Output Features
-
-- Standardized result format
-- Optional metadata about command execution
-- Preservation of input context
-- Validation tracking
-- Extensible result structure
-
-## Advanced Execution 🚀
-
-```javascript
-// Command with advanced execution and result tracking
-const advancedCommand = metamagic('process', 
-  (attrs, body) => {
-    // Complex processing
-    return {
-      result: processData(body),
-      metadata: {
+        },
+        // Additional custom metadata
         processingTime: measureExecutionTime(),
-        inputSize: body.length,
-        customAttributes: attrs
+        inputSize: body.length
       }
     };
   },
@@ -114,4 +107,30 @@ const advancedCommand = metamagic('process',
 );
 ```
 
-[... rest of previous README remains the same ...]
+## Validation Behavior 🕵️‍♀️
+
+- Specified attributes are required by default
+- Use `optional: true` to make an attribute or body optional
+- Custom `validate` functions can provide complex validation logic
+- Attributes are implicitly treated as strings
+
+## Error Handling 🚨
+
+- Validation errors provide detailed feedback
+- Execution halts if attribute validation fails
+- Custom validation functions can provide specific error messages
+
+## Roadmap 🗺️
+
+- [ ] TypeScript type inference
+- [ ] Advanced middleware support
+- [ ] Enhanced error reporting
+- [ ] CLI generation from command definitions
+
+## Contributing 🦄
+
+We welcome contributions to the Metamagic project! If you have any ideas, bug reports, or pull requests, please feel free to submit them on our GitHub repository.
+
+## License 🔒
+
+Metamagic is licensed under the MIT License.
