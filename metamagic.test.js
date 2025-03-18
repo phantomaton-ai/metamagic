@@ -96,7 +96,8 @@ describe('Metamagic', () => {
 
       expect(listCommand.example).to.deep.equal({
         attributes: {},
-        body: null
+        body: null,
+        description: 'Example usage of list command'
       });
     });
 

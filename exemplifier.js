@@ -6,7 +6,9 @@ export default function exemplifier(n, o, p) {
 
   return {
     attributes: Object.fromEntries(
-      Object.entries(p.attributes).map(([k, c]) => [k, 'some text'])
+      Object.entries(p.attributes)
+        .filter(([k, c]) => !c.optional)
+        .map(([k, c]) => [k, 'some text'])
     ),
     body: (p.body && !p.body.optional)
       ? 'Example text.\nMay span multiple lines\n'
