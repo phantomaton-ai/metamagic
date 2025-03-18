@@ -11,11 +11,20 @@ describe('Options', () => {
       body: true
     });
 
-    expect(result.attributes).to.deep.equal({
-      mode: { optional: false },
-      optional: { optional: true }
-    });
-    expect(result.body).to.deep.equal({ optional: false });
+    expect(result.attributes.mode.optional).to.equal(false);
+    expect(result.attributes.mode.description).to.equal('The mode parameter');
+    expect(result.attributes.mode.validate('foo')).to.equal(true);
+    expect(result.attributes.mode.validate(null)).to.equal(false);
+
+    expect(result.attributes.optional.optional).to.equal(true);
+    expect(result.attributes.optional.description).to.equal('The optional parameter');
+    expect(result.attributes.optional.validate('foo')).to.equal(true);
+    expect(result.attributes.optional.validate(null)).to.equal(false);
+
+    expect(result.body.optional).to.equal(false);
+    expect(result.body.description).to.equal('The body parameter');
+    expect(result.body.validate('foo')).to.equal(true);
+    expect(result.body.validate(null)).to.equal(false);
   });
 
   it('should handle string descriptions', () => {
@@ -27,14 +36,16 @@ describe('Options', () => {
       description: 'Custom description'
     });
 
-    expect(result.attributes.mode).to.deep.equal({ 
-      description: 'Processing mode', 
-      optional: false 
-    });
-    expect(result.body).to.deep.equal({ 
-      description: 'Input data', 
-      optional: false 
-    });
+    expect(result.attributes.mode.optional).to.equal(false);
+    expect(result.attributes.mode.description).to.equal('Processing mode');
+    expect(result.attributes.mode.validate('foo')).to.equal(true);
+    expect(result.attributes.mode.validate(null)).to.equal(false);
+
+    expect(result.body.optional).to.equal(false);
+    expect(result.body.description).to.equal('Input data');
+    expect(result.body.validate('foo')).to.equal(true);
+    expect(result.body.validate(null)).to.equal(false);
+
     expect(result.description).to.equal('Custom description');
   });
 
