@@ -2,17 +2,19 @@
 
 A lightweight, flexible command definition and validation library for JavaScript.
 
-## Overview
+## Overview 🌟
 
 Metamagic simplifies creating self-documenting, robust commands with built-in validation and example generation.
 
-## Installation
+## Installation 📦
 
 ```bash
 npm install metamagic
 ```
 
-## Basic Usage
+## Usage 🛠️
+
+### Basic Command Creation
 
 ```javascript
 import metamagic from 'metamagic';
@@ -25,13 +27,12 @@ const echoCommand = metamagic(
   'echo', 
   (attrs, body) => `${attrs.prefix || ''}${body}`,
   {
-    attributes: [
-      {
-        name: 'prefix',
+    attributes: {
+      prefix: {
         description: 'Optional text to prepend to the message',
         optional: true
       }
-    ],
+    },
     body: {
       description: 'The message to echo'
     }
@@ -39,7 +40,7 @@ const echoCommand = metamagic(
 );
 ```
 
-## API Reference
+## API Reference 📝
 
 ### `metamagic(name, execute, options?)`
 
@@ -62,20 +63,28 @@ const echoCommand = metamagic(
 ```javascript
 {
   // Attribute validation specifications
-  attributes: [
-    {
-      name: string,             // Attribute identifier
-      description?: string,     // Human-readable explanation
-      optional?: boolean,       // Default is false (required)
-      validate?: (value) => boolean  // Custom validation function
-    }
-  ],
+  attributes: {
+    [attributeName: string]: 
+      | true                    // Simple required attribute
+      | false                   // Optional attribute
+      | string                  // Description of attribute
+      | {
+          description?: string,     // Human-readable explanation
+          optional?: boolean,       // Default is false (required)
+          validate?: (value) => boolean  // Custom validation function
+        }
+  },
 
   // Body configuration
-  body?: {
-    optional?: boolean,         // Default is false (required)
-    description?: string        // Explanation of body purpose
-  },
+  body?: 
+    | true                      // Required body
+    | false                     // Optional body
+    | string                    // Body description
+    | {
+        optional?: boolean,     // Default is false (required)
+        description?: string,   // Explanation of body purpose
+        validate?: (body) => boolean  // Custom body validation
+      },
 
   // Command documentation
   description?: string,         // What the command does
@@ -91,14 +100,7 @@ const echoCommand = metamagic(
 }
 ```
 
-## Validation Behavior
-
-- Specified attributes are required by default
-- Use `optional: true` to make an attribute or body optional
-- Custom `validate` functions can provide complex validation logic
-- Attributes are implicitly treated as strings
-
-## Example: Complex Command
+## Example: Complex Command 🚀
 
 ```javascript
 const fileReadCommand = metamagic(
@@ -107,21 +109,20 @@ const fileReadCommand = metamagic(
     return fs.readFileSync(path, encoding || 'utf-8');
   },
   {
-    attributes: [
-      {
-        name: 'path',
+    attributes: {
+      path: {
         description: 'File path to read',
         validate: (path) => fs.existsSync(path)
       },
-      {
-        name: 'encoding',
+      encoding: {
         description: 'File character encoding',
         optional: true
       }
-    ],
+    },
     body: {
       optional: true,
-      description: 'Optional alternative file path'
+      description: 'Optional alternative file path',
+      validate: (body) => body === undefined || fs.existsSync(body)
     },
     description: 'Read contents of a file',
     examples: [
@@ -141,23 +142,30 @@ const fileReadCommand = metamagic(
 );
 ```
 
-## Error Handling
+## Validation Behavior 🕵️‍♀️
+
+- Specified attributes are required by default
+- Use `optional: true` to make an attribute or body optional
+- Custom `validate` functions can provide complex validation logic
+- Attributes are implicitly treated as strings
+
+## Error Handling 🚨
 
 - Validation errors provide detailed feedback
 - Execution halts if attribute validation fails
 - Custom validation functions can provide specific error messages
 
-## Roadmap
+## Roadmap 🗺️
 
 - [ ] TypeScript type inference
 - [ ] Advanced middleware support
 - [ ] Enhanced error reporting
 - [ ] CLI generation from command definitions
 
-## Contributing
+## Contributing 🦄
 
-Contributions welcome! Please read our Contributing Guidelines.
+We welcome contributions to the Metamagic project! If you have any ideas, bug reports, or pull requests, please feel free to submit them on our GitHub repository.
 
-## License
+## License 🔒
 
-MIT License
+Metamagic is licensed under the MIT License.
