@@ -1,26 +1,28 @@
-export default function processOptions(name, opts = {}) {
-  const normalizeConfig = (config) => {
-    if (config === true) return { optional: false };
-    if (config === false) return { optional: true };
-    if (typeof config === 'string') return { description: config, optional: false };
-    return { optional: false, ...config };
+export default function processOptions(n, o = {}) {
+  const normalize = (c) => {
+    if (c === true) return { optional: false };
+    if (c === false) return { optional: true };
+    if (typeof c === 'string') return { description: c, optional: false };
+    return { 
+      optional: false, 
+      ...c,
+      // Ensure default can be specified
+      default: c.default !== undefined ? c.default : undefined 
+    };
   };
 
   return {
-    attributes: opts.attributes 
+    attributes: o.attributes 
       ? Object.fromEntries(
-          Object.entries(opts.attributes).map(([key, value]) => 
-            [key, normalizeConfig(value)]
+          Object.entries(o.attributes).map(([k, v]) => 
+            [k, normalize(v)]
           )
         )
       : {},
-    body: opts.body 
-      ? normalizeConfig(opts.body)
+    body: o.body 
+      ? normalize(o.body)
       : { optional: true },
-    description: opts.description || `A command named ${name}`,
-    example: opts.example || {
-      attributes: {},
-      body: null
-    }
+    description: o.description || `A command named ${n}`,
+    example: o.example
   };
 }
