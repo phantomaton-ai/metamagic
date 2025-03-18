@@ -13,7 +13,7 @@ describe('Options', () => {
 
     expect(result.attributes).to.deep.equal({
       mode: { optional: false },
-      optional: { optional: false }
+      optional: { optional: true }
     });
     expect(result.body).to.deep.equal({ optional: false });
   });
