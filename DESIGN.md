@@ -1,145 +1,113 @@
 # Metamagic: Command Interface Design
 
-## Design Goals
+## Updated Design: Command Creation with Flexible Parameters
 
-1. Simplify command creation
-2. Enforce consistent command structure
-3. Provide lightweight schema-based validation
-4. Reduce boilerplate
-5. Support flexible command definition
-
-## Schema-Based Validation Approach
-
-### Core Concept
-
-The metamagic command creator will support lightweight schema validation with several key features:
-- Simple type checking
-- Optional/required attribute detection
-- Default value generation
-- Minimal runtime overhead
-
-### Proposed Interface
+### Core Interface
 
 ```javascript
-const echoCommand = metamagic('echo', {
-  // Simple schema definition
-  schema: {
-    message: {
-      type: 'string',
-      required: true,
-      default: () => 'Hello, world!',
-      validate: (value) => value.length > 0
-    },
-    level: {
-      type: 'enum',
-      options: ['info', 'warn', 'error'],
-      default: 'info'
-    }
-  },
-  
-  // Simplified execution
-  execute: (attrs) => {
-    console.log(`[${attrs.level}] ${attrs.message}`);
-    return attrs.message;
-  },
+// Minimal example
+const greetCommand = metamagic('greet', () => 'hello!');
 
-  // Optional description and example
-  description: 'Echo a message with optional logging level',
-  example: {
-    message: 'Test message',
-    level: 'warn'
-  }
-});
-```
-
-## Validation Strategy
-
-### Type Checking
-- Supports primitive types: 'string', 'number', 'boolean', 'object', 'array'
-- Custom type validation functions
-- Enum type support
-- Runtime type coercion (optional)
-
-### Validation Features
-- Required vs. optional attributes
-- Default value generation
-- Custom validation functions
-- Type coercion
-- Error aggregation
-
-### Example Complex Schema
-
-```javascript
-const userCommand = metamagic('createUser', {
-  schema: {
-    username: {
-      type: 'string',
-      required: true,
-      validate: (value) => value.length >= 3 && value.length <= 20
-    },
-    email: {
-      type: 'string',
-      required: true,
-      validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    },
-    age: {
-      type: 'number',
-      required: false,
-      default: null,
-      validate: (value) => value === null || (value >= 18 && value <= 120)
-    },
-    roles: {
-      type: 'array',
-      default: () => ['user'],
-      validate: (value) => {
-        const validRoles = ['user', 'admin', 'moderator'];
-        return value.every(role => validRoles.includes(role));
+// With options and schema
+const echoCommand = metamagic('echo', 
+  (attrs, body) => body, 
+  {
+    // Optional schema for attributes
+    schema: {
+      prefix: {
+        type: 'string',
+        default: ''
       }
+    },
+    // Optional body configuration
+    body: {
+      required: true,        // Body is mandatory
+      type: 'string'         // Body must be a string
     }
-  },
-  
-  execute: (attrs) => {
-    // Create user with validated attributes
-    return { 
-      id: generateId(),
-      ...attrs 
-    };
   }
-});
+);
 ```
 
-## Implementation Considerations
+## Key Design Principles
 
-### Validation Process
-1. Check for required attributes
-2. Apply default values
-3. Perform type checking
-4. Run custom validation functions
-5. Aggregate and throw validation errors if needed
+### Arguments
+1. `name` (string): Command identifier
+2. `execute` (function): Core command logic
+   - Signature: `(attributes, body) => result`
+3. `options` (object, optional): 
+   - `schema`: Attribute validation rules
+   - `body`: Body parameter configuration
+   - `description`: Command documentation
+   - `example`: Example usage
 
-### Error Handling
-- Comprehensive error messages
-- Ability to collect multiple validation errors
-- Configurable error reporting
+### Body Handling
+- Optional or required
+- Type checking
+- Potential transformation
+
+### Validation Strategies
+- Attribute schema validation
+- Body validation
+- Default value generation
+- Type coercion
+
+## Comprehensive Example
+
+```javascript
+const fileWriteCommand = metamagic(
+  'writeFile', 
+  ({ path }, body) => {
+    // Actual file writing logic
+    fs.writeFileSync(path, body);
+    return { success: true, path };
+  },
+  {
+    schema: {
+      path: {
+        type: 'string',
+        required: true,
+        validate: (path) => path.length > 0
+      },
+      encoding: {
+        type: 'string',
+        default: 'utf-8'
+      }
+    },
+    body: {
+      required: true,
+      type: 'string',
+      maxLength: 1_000_000  // Prevent massive file writes
+    },
+    description: 'Write content to a file',
+    example: {
+      attributes: { path: '/tmp/example.txt' },
+      body: 'Hello, world!'
+    }
+  }
+);
+```
+
+## Design Considerations
+
+### Validation Flow
+1. Validate attributes against schema
+2. Check body requirements
+3. Execute command
+4. Handle errors gracefully
+
+### Flexible Execution
+- Support synchronous and async functions
+- Consistent error handling
+- Predictable parameter passing
 
 ## Future Extensions
-
-- TypeScript type inference
-- More complex validation scenarios
+- Middleware support
+- Advanced type inference
 - Performance optimizations
-- Middleware/hook support for validation
-
-## Open Questions
-
-1. How granular should the type checking be?
-2. Should we support async validation?
-3. What's the right balance between flexibility and constraint?
+- Detailed error reporting
 
 ## Rationale
-
-This approach provides:
-- Lightweight schema definition
-- Minimal boilerplate
-- Flexible validation
-- Consistent command structure
-- Easy default and optional attribute handling
+- Minimal configuration for simple commands
+- Comprehensive options for complex scenarios
+- Consistent command definition pattern
+- Explicit body and attribute handling
