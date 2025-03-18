@@ -1,6 +1,6 @@
 {
   "name": "metamagic",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "metamagic.js",
   "scripts": {
     "all": "lovecraft -a",
