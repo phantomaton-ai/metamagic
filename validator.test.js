@@ -66,4 +66,15 @@ describe('Validator', () => {
     expect(validator({}, null)).to.be.true;
     expect(validator({}, undefined)).to.be.true;
   });
+
+  it('should handle missing body config', () => {
+    const validator = createValidator(
+      {}, 
+      null
+    );
+
+    expect(validator({}, null)).to.be.true;
+    expect(validator({}, undefined)).to.be.true;
+    expect(validator({}, 'body')).to.be.false;
+  });
 });

@@ -22,7 +22,12 @@ export default function createValidator(attributesConfig, bodyConfig) {
 
     // Validate body
     if (body === undefined || body === null) {
-      return bodyConfig.optional;
+      return !bodyConfig || bodyConfig.optional;
+    }
+
+    // Ensure no body is expected at this point
+    if (!bodyConfig) {
+      return false;
     }
 
     // Run body validation if provided
