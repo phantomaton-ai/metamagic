@@ -10,7 +10,8 @@ describe('Metamagic', () => {
       expect(greetCommand.description).to.equal('A command named greet');
       expect(greetCommand.example).to.deep.equal({
         attributes: {},
-        body: null
+        body: null,
+        description: 'Example usage of greet command'
       });
       
       const result = greetCommand.execute({}, null);
@@ -114,14 +115,16 @@ describe('Metamagic', () => {
           },
           example: {
             attributes: { query: 'apple' },
-            body: ['banana', 'apple pie', 'orange']
+            body: 'banana\napple pie\norange',
+            description: 'Search for apple in the body text'
           }
         }
       );
 
       expect(searchCommand.example).to.deep.equal({
         attributes: { query: 'apple' },
-        body: ['banana', 'apple pie', 'orange']
+        body: 'banana\napple pie\norange',
+        description: 'Search for apple in the body text'
       });
     });
   });
