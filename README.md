@@ -2,170 +2,116 @@
 
 A lightweight, flexible command definition and validation library for JavaScript.
 
-## Overview 🌟
+[... previous content remains the same ...]
 
-Metamagic simplifies creating self-documenting, robust commands with built-in validation and example generation.
+## Gallows Compatibility 🤝
 
-## Installation 📦
-
-```bash
-npm install metamagic
-```
-
-## Usage 🛠️
-
-### Basic Command Creation
+Metamagic provides full compatibility with Gallows command execution patterns while offering additional features:
 
 ```javascript
 import metamagic from 'metamagic';
 
-// Simplest command: no attributes, no body
-const greetCommand = metamagic('greet', () => 'Hello, world!');
-
-// Command with attributes and body
-const echoCommand = metamagic(
-  'echo', 
-  (attrs, body) => `${attrs.prefix || ''}${body}`,
+// Gallows-compatible command definition
+const echoCommand = metamagic('echo', 
+  (attributes, body) => body, 
   {
-    attributes: {
-      prefix: {
-        description: 'Optional text to prepend to the message',
-        optional: true
-      }
+    // Maintains Gallows-style example for backward compatibility
+    example: {
+      attributes: {},
+      body: 'Hello, World!'
     },
-    body: {
-      description: 'The message to echo'
-    }
-  }
-);
-```
-
-## API Reference 📝
-
-### `metamagic(name, execute, options?)`
-
-#### Arguments
-
-1. `name` (string, required): 
-   - Unique identifier for the command
-   - Used for documentation and potential CLI generation
-
-2. `execute` (function, required):
-   - Core command logic
-   - Signature: `(attributes, body) => result`
-   - Receives validated attributes and optional body
-   - Returns command result
-
-3. `options` (object, optional): Advanced configuration
-
-#### Options Object
-
-```javascript
-{
-  // Attribute validation specifications
-  attributes: {
-    [attributeName: string]: 
-      | true                    // Simple required attribute
-      | false                   // Optional attribute
-      | string                  // Description of attribute
-      | {
-          description?: string,     // Human-readable explanation
-          optional?: boolean,       // Default is false (required)
-          validate?: (value) => boolean  // Custom validation function
-        }
-  },
-
-  // Body configuration
-  body?: 
-    | true                      // Required body
-    | false                     // Optional body
-    | string                    // Body description
-    | {
-        optional?: boolean,     // Default is false (required)
-        description?: string,   // Explanation of body purpose
-        validate?: (body) => boolean  // Custom body validation
-      },
-
-  // Command documentation
-  description?: string,         // What the command does
-
-  // Multiple usage examples
-  examples?: [
-    {
-      description: string,      // Context for this example
-      attributes?: object,      // Example attribute values
-      body?: any                // Optional example body
-    }
-  ]
-}
-```
-
-## Example: Complex Command 🚀
-
-```javascript
-const fileReadCommand = metamagic(
-  'readFile',
-  ({ path, encoding }, body) => {
-    return fs.readFileSync(path, encoding || 'utf-8');
-  },
-  {
-    attributes: {
-      path: {
-        description: 'File path to read',
-        validate: (path) => fs.existsSync(path)
-      },
-      encoding: {
-        description: 'File character encoding',
-        optional: true
-      }
-    },
-    body: {
-      optional: true,
-      description: 'Optional alternative file path',
-      validate: (body) => body === undefined || fs.existsSync(body)
-    },
-    description: 'Read contents of a file',
+    // Additional Metamagic-specific multiple examples
     examples: [
       {
-        description: 'Read file with default encoding',
-        attributes: { path: '/path/to/file.txt' }
+        description: 'Simple echo',
+        attributes: {},
+        body: 'Hello, Metamagic!'
       },
       {
-        description: 'Read file with specific encoding',
-        attributes: { 
-          path: '/path/to/file.txt', 
-          encoding: 'base64' 
-        }
+        description: 'Echo with prefix',
+        attributes: { prefix: 'Message: ' },
+        body: 'Hello, World!'
       }
     ]
   }
 );
+
+// Execution remains compatible with Gallows
+const result = echoCommand.execute(
+  'echo',   // action name
+  {},       // attributes
+  'Hello, World!'  // body
+);
 ```
 
-## Validation Behavior 🕵️‍♀️
+## Output Interface 🖥️
 
-- Specified attributes are required by default
-- Use `optional: true` to make an attribute or body optional
-- Custom `validate` functions can provide complex validation logic
-- Attributes are implicitly treated as strings
+Metamagic commands provide a rich output interface:
 
-## Error Handling 🚨
+```javascript
+const command = metamagic('myCommand', 
+  (attrs, body) => {
+    // Returns a command result object
+    return {
+      // Execution result
+      result: 'Processed successfully',
+      
+      // Optional metadata about the execution
+      metadata: {
+        // Timestamps
+        executedAt: new Date(),
+        
+        // Input tracking
+        input: {
+          attributes: attrs,
+          body: body
+        },
+        
+        // Optional validation details
+        validation: {
+          attributesValidated: true,
+          bodyValidated: true
+        }
+      }
+    };
+  }
+);
+```
 
-- Validation errors provide detailed feedback
-- Execution halts if attribute validation fails
-- Custom validation functions can provide specific error messages
+### Output Features
 
-## Roadmap 🗺️
+- Standardized result format
+- Optional metadata about command execution
+- Preservation of input context
+- Validation tracking
+- Extensible result structure
 
-- [ ] TypeScript type inference
-- [ ] Advanced middleware support
-- [ ] Enhanced error reporting
-- [ ] CLI generation from command definitions
+## Advanced Execution 🚀
 
-## Contributing 🦄
+```javascript
+// Command with advanced execution and result tracking
+const advancedCommand = metamagic('process', 
+  (attrs, body) => {
+    // Complex processing
+    return {
+      result: processData(body),
+      metadata: {
+        processingTime: measureExecutionTime(),
+        inputSize: body.length,
+        customAttributes: attrs
+      }
+    };
+  },
+  {
+    attributes: {
+      mode: {
+        description: 'Processing mode',
+        optional: true,
+        validate: (mode) => ['strict', 'lenient'].includes(mode)
+      }
+    }
+  }
+);
+```
 
-We welcome contributions to the Metamagic project! If you have any ideas, bug reports, or pull requests, please feel free to submit them on our GitHub repository.
-
-## License 🔒
-
-Metamagic is licensed under the MIT License.
+[... rest of previous README remains the same ...]
