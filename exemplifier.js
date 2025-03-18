@@ -1,26 +1,33 @@
-export default function createExample(name, opts, processed) {
+export default function createExample(n, o, p) {
   // If an example is explicitly provided, use it
-  if (opts.example) return opts.example;
+  if (o.example) return {
+    ...o.example,
+    description: o.example.description || `Example usage of ${n} command`
+  };
 
   // Generate attribute examples
   const attrs = Object.fromEntries(
-    Object.entries(processed.attributes).map(([key, config]) => {
+    Object.entries(p.attributes).map(([k, c]) => {
       // Use description or key as basis for example value
-      const desc = config.description || key;
-      const value = config.optional 
-        ? undefined 
-        : (desc.match(/\w+/)?.[0] || key);
-      return [key, value];
+      const desc = c.description || k;
+      const def = c.default; // Support default value if provided
+      const val = def !== undefined 
+        ? def 
+        : (desc.match(/\w+/)?.[0] || k);
+      return [k, val];
     })
   );
 
   // Generate body example
-  const body = processed.body.optional 
-    ? null 
-    : (processed.body.description?.match(/\w+/)?.[0] || name);
+  const body = p.body.default !== undefined 
+    ? p.body.default
+    : (p.body.optional 
+      ? null 
+      : (p.body.description?.match(/\w+/)?.[0] || n));
 
   return {
     attributes: attrs,
-    body
+    body,
+    description: `Perform the ${n} command`
   };
 }
