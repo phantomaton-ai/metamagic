@@ -40,71 +40,59 @@ const echoCommand = metamagic(
 );
 ```
 
-## Output Interface 🖥️
+## Command Object Interface 🖥️
 
-Each Metamagic command returns a standardized result object compatible with command execution frameworks:
+The `metamagic()` function returns an object with the following structure:
 
 ```javascript
 {
-  // Core result of the command execution
-  result: any,
-  
-  // Command metadata (optional)
-  metadata: {
-    // Execution context
-    name: string,           // Command name
-    executedAt: Date,       // Execution timestamp
-    
-    // Input tracking
-    input: {
-      attributes: object,   // Attributes passed to the command
-      body: any             // Body passed to the command
-    },
-    
-    // Validation details
-    validation: {
-      attributesValidated: boolean,
-      bodyValidated: boolean
-    }
-  }
+  // Command identifier
+  name: string,
+
+  // Human-readable description of the command
+  description?: string,
+
+  // Example usage of the command
+  example?: {
+    attributes: object,
+    body?: any
+  },
+
+  // Validate command attributes and body
+  validate: (attributes: object, body: any) => boolean,
+
+  // Execute the command with given attributes and body
+  execute: (attributes: object, body: any) => any
 }
 ```
 
-### Example of Detailed Output
+### Example of Command Object
 
 ```javascript
 const processCommand = metamagic('process', 
   (attrs, body) => {
-    // Complex processing logic
-    return {
-      result: processData(body),
-      metadata: {
-        name: 'process',
-        executedAt: new Date(),
-        input: {
-          attributes: attrs,
-          body: body
-        },
-        validation: {
-          attributesValidated: true,
-          bodyValidated: true
-        },
-        // Additional custom metadata
-        processingTime: measureExecutionTime(),
-        inputSize: body.length
-      }
-    };
+    // Command execution logic
+    return processData(body);
   },
   {
+    description: 'Process input data',
     attributes: {
       mode: {
         description: 'Processing mode',
         optional: true,
         validate: (mode) => ['strict', 'lenient'].includes(mode)
       }
+    },
+    example: {
+      attributes: { mode: 'strict' },
+      body: 'input data'
     }
   }
 );
+
+// Usage
+const isValid = processCommand.validate({ mode: 'strict' }, 'data');
+const result = processCommand.execute({ mode: 'strict' }, 'data');
 ```
 
 ## Validation Behavior 🕵️‍♀️
