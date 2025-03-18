@@ -1,19 +1,15 @@
 # Metamagic: Command Interface Design
 
-## Updated Design: Command Creation with Attribute Lists
+## Updated Design: Command Creation with Enhanced Examples and Optional Attributes
 
 ### Core Interface
 
 ```javascript
-// Minimal example
-const greetCommand = metamagic('greet', () => 'hello!');
-
-// With attribute requirements
 const fileReadCommand = metamagic(
   'readFile', 
-  ({ path }, body) => {
+  ({ path, encoding }, body) => {
     // Actual file reading logic
-    return fs.readFileSync(path, 'utf-8');
+    return fs.readFileSync(path, encoding || 'utf-8');
   },
   {
     // Attribute list with flexible validation
@@ -34,86 +30,119 @@ const fileReadCommand = metamagic(
       {
         name: 'encoding',
         description: 'File encoding',
-        // Optional attribute with default
+        optional: true, // Mark as optional
         validate: (value) => ['utf-8', 'ascii', 'base64'].includes(value)
       }
     ],
     body: {
-      // Optional body configuration
-      required: false
+      optional: true // Body is not required
     },
-    description: 'Read a file\'s contents',
-    example: {
-      attributes: { 
-        path: '/path/to/example.txt',
-        encoding: 'utf-8'
+    // Multiple examples with descriptions
+    examples: [
+      {
+        description: 'Read a text file with default UTF-8 encoding',
+        attributes: { 
+          path: '/path/to/example.txt'
+        }
+      },
+      {
+        description: 'Read a file with specific encoding',
+        attributes: { 
+          path: '/path/to/binary.txt',
+          encoding: 'base64'
+        }
       }
-    }
+    ],
+    description: 'Read a file\'s contents'
   }
 );
 
-// Another example with minimal attributes
-const echoCommand = metamagic(
-  'echo', 
-  (attrs, body) => body,
+// Another example with multiple examples
+const gitCloneCommand = metamagic(
+  'gitClone',
+  ({ url, branch }, body) => {
+    // Git clone logic
+    return simpleGit().clone(url, body || './', branch ? ['-b', branch] : []);
+  },
   {
     attributes: [
       {
-        name: 'prefix',
-        description: 'Optional prefix for the message',
-        validate: (value) => value.length <= 10 // Optional custom validation
+        name: 'url',
+        description: 'Repository URL to clone'
+      },
+      {
+        name: 'branch',
+        description: 'Specific branch to clone',
+        optional: true
       }
     ],
     body: {
-      required: true
-    }
+      optional: true,
+      description: 'Optional destination directory'
+    },
+    examples: [
+      {
+        description: 'Clone a repository to current directory',
+        attributes: {
+          url: 'https://github.com/user/repo.git'
+        }
+      },
+      {
+        description: 'Clone a specific branch to a custom directory',
+        attributes: {
+          url: 'https://github.com/user/repo.git',
+          branch: 'develop'
+        },
+        body: './my-project'
+      }
+    ],
+    description: 'Clone a Git repository'
   }
 );
 ```
 
 ## Design Principles
 
-### Attribute Specification
-- Each attribute is an object with:
-  - `name`: Identifier (required)
-  - `description`: Human-readable explanation (optional)
-  - `validate`: Custom validation function (optional)
-- Implicit string type
-- Supports optional attributes
-- Enables rich, custom validation
+### Attribute and Body Handling
+- `optional: true` explicitly marks non-required elements
+- Default behavior is to require specified attributes
+- Flexible validation and description
 
-### Validation Strategies
-- Default: presence check for required attributes
-- Custom validation via function
-- Descriptive error potential
-- Flexible attribute handling
+### Example Specification
+- `examples` is an array of example objects
+- Each example includes:
+  - `description`: Explains the example's context
+  - `attributes`: Example attribute values
+  - `body`: Optional body value
 
-### Execution Context
-- `attributes`: Object of provided attributes
-- `body`: Optional input parameter
-- Return value determines command result
+### Validation and Execution
+- Attributes and body are validated if specified
+- Custom validation functions
+- Comprehensive error potential
+- Flexible execution context
 
 ## Implementation Considerations
 
 ### Validation Process
-1. Check required attributes
-2. Run custom validation functions
-3. Aggregate and report validation errors
-4. Execute command if validation passes
+1. Check specified attributes
+2. Run optional custom validation
+3. Support partially specified configurations
+4. Provide rich error information
 
-### Error Handling
-- Comprehensive validation error reporting
-- Clear distinction between attribute and execution errors
-- Potential for rich, extensible error types
+### Examples Purpose
+- Documentation
+- Testing
+- Quick start guidance
+- Demonstrate different use cases
 
 ## Future Extensions
-- TypeScript type inference
-- More complex validation scenarios
-- Middleware for pre/post validation
-- Detailed error reporting mechanism
+- Interactive example generation
+- Example-driven testing
+- Enhanced documentation tools
+- IDE integration for example exploration
 
 ## Rationale
-- Lightweight attribute specification
-- Flexible validation
-- Clear command interface
-- Support for both simple and complex use cases
+- Flexible attribute specification
+- Clear, descriptive examples
+- Support for complex command scenarios
+- Improved developer experience
