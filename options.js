@@ -3,7 +3,7 @@ export default function options(n, o = {}) {
     if (c === true) return { optional: false };
     if (c === false) return { optional: true };
     if (typeof c === 'string') return { description: c, optional: false };
-    return { optional: false, ...c };
+    return { optional: false, validate: v => typeof v === 'string', ...c };
   };
 
   return {

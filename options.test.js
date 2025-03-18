@@ -53,9 +53,9 @@ describe('Options', () => {
       }
     });
 
-    expect(result.attributes.mode).to.deep.equal({ 
-      description: 'Processing mode', 
-      optional: true 
-    });
+    expect(result.attributes.mode.description).to.equal('Processing mode');
+    expect(result.attributes.mode.optional).to.equal(true);
+    expect(result.attributes.mode.validate('foo')).to.equal(true);
+    expect(result.attributes.mode.validate(null)).to.equal(false);
   });
 });
