@@ -149,13 +149,6 @@ const result = processCommand.execute({ mode: 'strict' }, 'data');
 - Execution halts if attribute validation fails
 - Custom validation functions can provide specific error messages
 
-## Roadmap 🗺️
-
-- [ ] TypeScript type inference
-- [ ] Advanced middleware support
-- [ ] Enhanced error reporting
-- [ ] CLI generation from command definitions
-
 ## Contributing 🦄
 
 We welcome contributions to the Metamagic project! If you have any ideas, bug reports, or pull requests, please feel free to submit them on our GitHub repository.
