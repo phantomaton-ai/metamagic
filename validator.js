@@ -1,4 +1,4 @@
-export function createValidator(attributesConfig, bodyConfig) {
+export default function createValidator(attributesConfig, bodyConfig) {
   return (attributes, body) => {
     // Validate attributes
     for (const [key, config] of Object.entries(attributesConfig)) {
