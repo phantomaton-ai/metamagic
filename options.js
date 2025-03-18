@@ -1,14 +1,9 @@
-export default function processOptions(n, o = {}) {
+export default function options(n, o = {}) {
   const normalize = (c) => {
     if (c === true) return { optional: false };
     if (c === false) return { optional: true };
     if (typeof c === 'string') return { description: c, optional: false };
-    return { 
-      optional: false, 
-      ...c,
-      // Ensure default can be specified
-      default: c.default !== undefined ? c.default : undefined 
-    };
+    return { optional: false, ...c };
   };
 
   return {
@@ -19,9 +14,7 @@ export default function processOptions(n, o = {}) {
           )
         )
       : {},
-    body: o.body 
-      ? normalize(o.body)
-      : { optional: true },
+    body: o.body ? normalize(o.body) : null,
     description: o.description || `A command named ${n}`,
     example: o.example
   };
