@@ -1,6 +1,6 @@
 # Metamagic: Command Interface Design
 
-## Updated Design: Command Creation with Flexible Parameters
+## Updated Design: Command Creation with Attribute Lists
 
 ### Core Interface
 
@@ -8,106 +8,112 @@
 // Minimal example
 const greetCommand = metamagic('greet', () => 'hello!');
 
-// With options and schema
-const echoCommand = metamagic('echo', 
-  (attrs, body) => body, 
-  {
-    // Optional schema for attributes
-    schema: {
-      prefix: {
-        type: 'string',
-        default: ''
-      }
-    },
-    // Optional body configuration
-    body: {
-      required: true,        // Body is mandatory
-      type: 'string'         // Body must be a string
-    }
-  }
-);
-```
-
-## Key Design Principles
-
-### Arguments
-1. `name` (string): Command identifier
-2. `execute` (function): Core command logic
-   - Signature: `(attributes, body) => result`
-3. `options` (object, optional): 
-   - `schema`: Attribute validation rules
-   - `body`: Body parameter configuration
-   - `description`: Command documentation
-   - `example`: Example usage
-
-### Body Handling
-- Optional or required
-- Type checking
-- Potential transformation
-
-### Validation Strategies
-- Attribute schema validation
-- Body validation
-- Default value generation
-- Type coercion
-
-## Comprehensive Example
-
-```javascript
-const fileWriteCommand = metamagic(
-  'writeFile', 
+// With attribute requirements
+const fileReadCommand = metamagic(
+  'readFile', 
   ({ path }, body) => {
-    // Actual file writing logic
-    fs.writeFileSync(path, body);
-    return { success: true, path };
+    // Actual file reading logic
+    return fs.readFileSync(path, 'utf-8');
   },
   {
-    schema: {
-      path: {
-        type: 'string',
-        required: true,
-        validate: (path) => path.length > 0
+    // Attribute list with flexible validation
+    attributes: [
+      {
+        name: 'path',
+        description: 'Path to the file to read',
+        validate: (value) => {
+          // Custom validation: ensure path exists and is readable
+          try {
+            fs.accessSync(value, fs.constants.R_OK);
+            return true;
+          } catch {
+            return false;
+          }
+        }
       },
-      encoding: {
-        type: 'string',
-        default: 'utf-8'
+      {
+        name: 'encoding',
+        description: 'File encoding',
+        // Optional attribute with default
+        validate: (value) => ['utf-8', 'ascii', 'base64'].includes(value)
       }
-    },
+    ],
     body: {
-      required: true,
-      type: 'string',
-      maxLength: 1_000_000  // Prevent massive file writes
+      // Optional body configuration
+      required: false
     },
-    description: 'Write content to a file',
+    description: 'Read a file\'s contents',
     example: {
-      attributes: { path: '/tmp/example.txt' },
-      body: 'Hello, world!'
+      attributes: { 
+        path: '/path/to/example.txt',
+        encoding: 'utf-8'
+      }
+    }
+  }
+);
+
+// Another example with minimal attributes
+const echoCommand = metamagic(
+  'echo', 
+  (attrs, body) => body,
+  {
+    attributes: [
+      {
+        name: 'prefix',
+        description: 'Optional prefix for the message',
+        validate: (value) => value.length <= 10 // Optional custom validation
+      }
+    ],
+    body: {
+      required: true
     }
   }
 );
 ```
 
-## Design Considerations
+## Design Principles
 
-### Validation Flow
-1. Validate attributes against schema
-2. Check body requirements
-3. Execute command
-4. Handle errors gracefully
+### Attribute Specification
+- Each attribute is an object with:
+  - `name`: Identifier (required)
+  - `description`: Human-readable explanation (optional)
+  - `validate`: Custom validation function (optional)
+- Implicit string type
+- Supports optional attributes
+- Enables rich, custom validation
 
-### Flexible Execution
-- Support synchronous and async functions
-- Consistent error handling
-- Predictable parameter passing
+### Validation Strategies
+- Default: presence check for required attributes
+- Custom validation via function
+- Descriptive error potential
+- Flexible attribute handling
+
+### Execution Context
+- `attributes`: Object of provided attributes
+- `body`: Optional input parameter
+- Return value determines command result
+
+## Implementation Considerations
+
+### Validation Process
+1. Check required attributes
+2. Run custom validation functions
+3. Aggregate and report validation errors
+4. Execute command if validation passes
+
+### Error Handling
+- Comprehensive validation error reporting
+- Clear distinction between attribute and execution errors
+- Potential for rich, extensible error types
 
 ## Future Extensions
-- Middleware support
-- Advanced type inference
-- Performance optimizations
-- Detailed error reporting
+- TypeScript type inference
+- More complex validation scenarios
+- Middleware for pre/post validation
+- Detailed error reporting mechanism
 
 ## Rationale
-- Minimal configuration for simple commands
-- Comprehensive options for complex scenarios
-- Consistent command definition pattern
-- Explicit body and attribute handling
+- Lightweight attribute specification
+- Flexible validation
+- Clear command interface
+- Support for both simple and complex use cases
